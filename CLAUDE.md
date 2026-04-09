@@ -18,9 +18,60 @@ Duolingoの習慣化設計 × 恐竜キャラクターIPの組み合わせ。
 - **Framework**: Next.js 14 (App Router)
 - **Language**: TypeScript (strict)
 - **Styling**: Tailwind CSS
-- **AI**: Anthropic API (claude-sonnet-4-6) でケアプログラム生成
 - **DB**: Supabase (ユーザー・ストリーク・症状履歴)
 - **Deploy**: Vercel
+
+---
+
+## AI設定
+- **Provider**: Google Gemini API（無料枠）
+- **Model**: gemini-2.5-flash-lite（MVP段階）
+- **SDK**: @google/generative-ai
+- **用途**: 毎日のケアプログラム生成（チェックイン結果→5分メニュー）
+- **無料枠**: 1,000リクエスト/日・15RPM
+  → DAU 100人以下なら無料枠で十分
+  → 超えたら gemini-2.5-flash に切り替え（250リクエスト/日）
+
+## Gemini呼び出しの基本実装（Claude Codeへの参考）
+\`\`\`typescript
+// src/lib/ai.ts
+import { GoogleGenerativeAI } from "@google/generative-ai";
+
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
+
+export async function generateCareProgram(input: {
+  dinosaurCode: string;
+  symptoms: string[];
+  intensity: number;
+  timeOfDay: "morning" | "noon" | "evening";
+}): Promise<CareProgram> {
+  const prompt = `
+    ユーザーの恐竜タイプ: ${input.dinosaurCode}
+    今日の症状: ${input.symptoms.join("・")}
+    辛さレベル: ${input.intensity}/5
+    時間帯: ${input.timeOfDay}
+
+    上記に最適な5分のストレッチプログラムをJSON形式で返してください。
+    {
+      "title": "今日のプログラム名",
+      "reason": "なぜこのプログラムか（1文）",
+      "exercises": [
+        {
+          "name": "種目名",
+          "duration": 秒数,
+          "instruction": "やり方（1〜2文）",
+          "tip": "意識するポイント"
+        }
+      ],
+      "afterMessage": "終わった後への一言"
+    }
+  `;
+
+  const result = await model.generateContent(prompt);
+  return JSON.parse(result.response.text());
+}
+\`\`\`
 
 ---
 
