@@ -1,0 +1,138 @@
+import { DinosaurType } from "@/types";
+
+export const DINOSAURS: Record<string, DinosaurType> = {
+  UTEC: {
+    code: "UTEC",
+    name: "トリケラ",
+    species: "トリケラトプス",
+    catchphrase: "角を磨くより、首を緩めて",
+    themeColor: "#5B8DB8",
+    axes: { bodyPart: "U", quality: "T", eye: "E", spread: "C" },
+  },
+  UTEW: {
+    code: "UTEW",
+    name: "パキ",
+    species: "パキケファロサウルス",
+    catchphrase: "頭の固さが、全身を固くしている",
+    themeColor: "#7B68EE",
+    axes: { bodyPart: "U", quality: "T", eye: "E", spread: "W" },
+  },
+  UTBC: {
+    code: "UTBC",
+    name: "レックス",
+    species: "ティラノサウルス",
+    catchphrase: "力はある。ただ、肩が縮んだまま",
+    themeColor: "#C0392B",
+    axes: { bodyPart: "U", quality: "T", eye: "B", spread: "C" },
+  },
+  UTBW: {
+    code: "UTBW",
+    name: "スピノ",
+    species: "スピノサウルス",
+    catchphrase: "背中の帆が重くて、前に進めない",
+    themeColor: "#2E8B57",
+    axes: { bodyPart: "U", quality: "T", eye: "B", spread: "W" },
+  },
+  UDEC: {
+    code: "UDEC",
+    name: "プテラ",
+    species: "プテラノドン",
+    catchphrase: "飛べるはずの翼が、疲れで下がっている",
+    themeColor: "#4682B4",
+    axes: { bodyPart: "U", quality: "D", eye: "E", spread: "C" },
+  },
+  UDEW: {
+    code: "UDEW",
+    name: "アーキ",
+    species: "アーケオプテリクス",
+    catchphrase: "飛び方は知っている。でも体が言うことを聞かない",
+    themeColor: "#8B7355",
+    axes: { bodyPart: "U", quality: "D", eye: "E", spread: "W" },
+  },
+  UDBC: {
+    code: "UDBC",
+    name: "ブラキー",
+    species: "ブラキオサウルス",
+    catchphrase: "高いところを見たいのに、首が重くて上がらない",
+    themeColor: "#3CB371",
+    axes: { bodyPart: "U", quality: "D", eye: "B", spread: "C" },
+  },
+  UDBW: {
+    code: "UDBW",
+    name: "ディプロ",
+    species: "ディプロドクス",
+    catchphrase: "首から尻尾まで、全部がだるい",
+    themeColor: "#708090",
+    axes: { bodyPart: "U", quality: "D", eye: "B", spread: "W" },
+  },
+  LTEC: {
+    code: "LTEC",
+    name: "カルノ",
+    species: "カルノタウルス",
+    catchphrase: "角（目）と鎧（腰）、両方が限界",
+    themeColor: "#B8860B",
+    axes: { bodyPart: "L", quality: "T", eye: "E", spread: "C" },
+  },
+  LTEW: {
+    code: "LTEW",
+    name: "パラサウロ",
+    species: "パラサウロロフス",
+    catchphrase: "頭の重さが、脊椎全体を固くしている",
+    themeColor: "#CD853F",
+    axes: { bodyPart: "L", quality: "T", eye: "E", spread: "W" },
+  },
+  LTBC: {
+    code: "LTBC",
+    name: "アンキー",
+    species: "アンキロサウルス",
+    catchphrase: "甲羅が重くて、立ち上がるのが怖い",
+    themeColor: "#556B2F",
+    axes: { bodyPart: "L", quality: "T", eye: "B", spread: "C" },
+  },
+  LTBW: {
+    code: "LTBW",
+    name: "ステゴ",
+    species: "ステゴサウルス",
+    catchphrase: "板が並んだ背中。固さの連鎖が止まらない",
+    themeColor: "#8B4513",
+    axes: { bodyPart: "L", quality: "T", eye: "B", spread: "W" },
+  },
+  LDEC: {
+    code: "LDEC",
+    name: "イグア",
+    species: "イグアノドン",
+    catchphrase: "立っているのか座っているのか、体が迷っている",
+    themeColor: "#20B2AA",
+    axes: { bodyPart: "L", quality: "D", eye: "E", spread: "C" },
+  },
+  LDEW: {
+    code: "LDEW",
+    name: "アパト",
+    species: "アパトサウルス",
+    catchphrase: "体がでかすぎて、重力に負けている",
+    themeColor: "#9370DB",
+    axes: { bodyPart: "L", quality: "D", eye: "E", spread: "W" },
+  },
+  LDBC: {
+    code: "LDBC",
+    name: "ラプトル",
+    species: "ヴェロキラプトル",
+    catchphrase: "速く動けるのに、腰だけが追いついていない",
+    themeColor: "#FF6347",
+    axes: { bodyPart: "L", quality: "D", eye: "B", spread: "C" },
+  },
+  LDBW: {
+    code: "LDBW",
+    name: "アロ",
+    species: "アロサウルス",
+    catchphrase: "力はある。でも全部がだるい",
+    themeColor: "#DC143C",
+    axes: { bodyPart: "L", quality: "D", eye: "B", spread: "W" },
+  },
+};
+
+export function getDinosaur(code: string): DinosaurType | undefined {
+  return DINOSAURS[code.toUpperCase()];
+}
+
+export const VALID_CODES = Object.keys(DINOSAURS);
