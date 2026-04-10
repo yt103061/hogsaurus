@@ -147,9 +147,12 @@ src/
 - [ ] シェアテキスト生成（Xへのコピー）
 
 ### Phase 2
-- [ ] 毎日のチェックイン（/checkin）
-- [ ] Anthropic APIでケアプログラム生成
-- [ ] ストリーク管理（Supabase）
+- [x] 毎日のチェックイン（/checkin）
+- [x] Gemini APIでケアプログラム生成（/api/generate-program）
+- [x] ストリーク管理（localStorage・MVP）
+- [x] セッション画面（/session）
+- [x] フィードバック画面（/feedback）
+- [x] ホーム画面の診断済み表示
 
 ### Phase 3
 - [ ] キャラクター進化アニメーション
