@@ -4,7 +4,9 @@ const STORAGE_KEY = "hogsaurus_user";
 const PENDING_KEY = "hogsaurus_pending";
 
 export function getTodayString(): string {
-  return new Date().toISOString().slice(0, 10);
+  // toLocaleDateString('sv') produces YYYY-MM-DD in local time (not UTC)
+  // Prevents date mismatch for JST users between midnight and 9am UTC
+  return new Date().toLocaleDateString("sv");
 }
 
 export function getUserData(): UserData | null {
