@@ -33,3 +33,25 @@ export interface CareProgram {
   exercises: Exercise[];
   afterMessage: string;
 }
+
+export interface UserData {
+  dinosaurCode: string;
+  streakDays: number;
+  lastCheckinDate: string; // YYYY-MM-DD
+  totalXP: number;
+  checkinHistory: CheckinRecord[];
+}
+
+export interface CheckinRecord {
+  date: string;
+  symptoms: string[];
+  intensity: number;
+  feedback: "great" | "good" | "neutral";
+}
+
+export interface PendingCheckin {
+  symptoms: string[];
+  intensity: number;
+  timeOfDay: "morning" | "noon" | "evening";
+  program: CareProgram;
+}

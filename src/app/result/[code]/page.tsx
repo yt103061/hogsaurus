@@ -20,6 +20,10 @@ export default function ResultPage() {
       return;
     }
     setDinosaur(dino);
+    // 診断完了時にlocalStorageへ保存
+    import("@/lib/storage").then(({ setDinosaurCode }) => {
+      setDinosaurCode(code);
+    });
   }, [code, router]);
 
   async function handleShare() {
@@ -146,14 +150,14 @@ export default function ResultPage() {
 
           <Link
             href="/checkin"
-            className="w-full py-4 rounded-xl font-bold text-base text-center border opacity-40 cursor-not-allowed"
+            className="w-full py-4 rounded-xl font-bold text-base text-center border transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
             style={{
               borderColor: "rgba(212,168,67,0.3)",
+              backgroundColor: "rgba(212,168,67,0.08)",
               color: "#F5EDD8",
-              pointerEvents: "none",
             }}
           >
-            毎日のチェックイン（近日公開）
+            今日のチェックインをする →
           </Link>
 
           <Link
