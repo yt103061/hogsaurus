@@ -69,7 +69,8 @@ export function updateStreak(data: UserData): UserData {
     streakDays = 1;
   }
 
-  return { ...data, streakDays, lastCheckinDate: today };
+  const maxStreak = Math.max(data.maxStreak ?? data.streakDays, streakDays);
+  return { ...data, streakDays, lastCheckinDate: today, maxStreak };
 }
 
 export function addXP(data: UserData, amount: number): UserData {

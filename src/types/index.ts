@@ -40,6 +40,7 @@ export interface UserData {
   lastCheckinDate: string; // YYYY-MM-DD
   totalXP: number;
   checkinHistory: CheckinRecord[];
+  maxStreak?: number;
 }
 
 export interface CheckinRecord {
