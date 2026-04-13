@@ -4,57 +4,53 @@ const MILESTONES = [7, 14, 21, 30];
 
 interface StreakBarProps {
   streakDays: number;
-  themeColor: string;
+  typeColor: string;
 }
 
-export function StreakBar({ streakDays, themeColor }: StreakBarProps) {
+export function StreakBar({ streakDays, typeColor }: StreakBarProps) {
   const maxDisplay = 30;
   const progress = Math.min((streakDays / maxDisplay) * 100, 100);
 
   return (
-    <div className="w-full">
-      <div className="flex justify-between items-center mb-2">
-        <p className="text-xs opacity-40">ストリーク</p>
-        <p className="text-xs font-bold" style={{ color: themeColor }}>
+    <div>
+      <div className="flex items-center justify-between mb-4">
+        <p className="text-sm font-bold text-[#777]">ストリーク</p>
+        <div
+          className="flex items-center gap-1 px-3 py-1.5 rounded-xl font-extrabold text-sm"
+          style={{ background: "#FFF0D4", color: "#FF9600" }}
+        >
           🔥 {streakDays}日
-        </p>
+        </div>
       </div>
-      <div className="relative w-full h-2 rounded-full" style={{ backgroundColor: "rgba(212,168,67,0.12)" }}>
-        {/* 進捗バー */}
+      <div className="relative w-full h-4 rounded-full bg-[#E5E5E5]">
         <div
           className="absolute left-0 top-0 h-full rounded-full transition-all duration-700"
-          style={{ width: `${progress}%`, backgroundColor: themeColor }}
+          style={{ width: `${progress}%`, backgroundColor: typeColor }}
         />
-        {/* マイルストーンドット */}
         {MILESTONES.map((m) => {
           const pos = (m / maxDisplay) * 100;
           const reached = streakDays >= m;
           return (
             <div
               key={m}
-              className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-3 h-3 rounded-full border-2 transition-all duration-500"
+              className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-4 h-4 rounded-full border-2 border-white transition-all duration-500"
               style={{
                 left: `${pos}%`,
-                backgroundColor: reached ? themeColor : "#100C05",
-                borderColor: reached ? themeColor : "rgba(212,168,67,0.3)",
+                backgroundColor: reached ? typeColor : "#CCCCCC",
               }}
             />
           );
         })}
       </div>
-      {/* マイルストーンラベル */}
-      <div className="relative w-full mt-1.5">
+      <div className="relative w-full mt-2">
         {MILESTONES.map((m) => {
           const pos = (m / maxDisplay) * 100;
           const reached = streakDays >= m;
           return (
             <span
               key={m}
-              className="absolute text-[10px] -translate-x-1/2"
-              style={{
-                left: `${pos}%`,
-                color: reached ? themeColor : "rgba(245,237,216,0.2)",
-              }}
+              className="absolute text-[10px] font-extrabold -translate-x-1/2"
+              style={{ left: `${pos}%`, color: reached ? typeColor : "#BBBBBB" }}
             >
               {m}日
             </span>

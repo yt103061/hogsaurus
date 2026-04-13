@@ -6,7 +6,7 @@ export const DINOSAURS: Record<string, DinosaurType> = {
     name: "トリケラ",
     species: "トリケラトプス",
     catchphrase: "角を磨くより、首を緩めて",
-    themeColor: "#5B8DB8",
+    themeColor: "#FF4B4B",
     axes: { bodyPart: "U", quality: "T", eye: "E", spread: "C" },
   },
   UTEW: {
@@ -14,7 +14,7 @@ export const DINOSAURS: Record<string, DinosaurType> = {
     name: "パキ",
     species: "パキケファロサウルス",
     catchphrase: "頭の固さが、全身を固くしている",
-    themeColor: "#7B68EE",
+    themeColor: "#8549BA",
     axes: { bodyPart: "U", quality: "T", eye: "E", spread: "W" },
   },
   UTBC: {
@@ -22,7 +22,7 @@ export const DINOSAURS: Record<string, DinosaurType> = {
     name: "レックス",
     species: "ティラノサウルス",
     catchphrase: "力はある。ただ、肩が縮んだまま",
-    themeColor: "#C0392B",
+    themeColor: "#1CB0F6",
     axes: { bodyPart: "U", quality: "T", eye: "B", spread: "C" },
   },
   UTBW: {
@@ -30,7 +30,7 @@ export const DINOSAURS: Record<string, DinosaurType> = {
     name: "スピノ",
     species: "スピノサウルス",
     catchphrase: "背中の帆が重くて、前に進めない",
-    themeColor: "#2E8B57",
+    themeColor: "#1CB0F6",
     axes: { bodyPart: "U", quality: "T", eye: "B", spread: "W" },
   },
   UDEC: {
@@ -38,7 +38,7 @@ export const DINOSAURS: Record<string, DinosaurType> = {
     name: "プテラ",
     species: "プテラノドン",
     catchphrase: "飛べるはずの翼が、疲れで下がっている",
-    themeColor: "#4682B4",
+    themeColor: "#FF9600",
     axes: { bodyPart: "U", quality: "D", eye: "E", spread: "C" },
   },
   UDEW: {
@@ -46,7 +46,7 @@ export const DINOSAURS: Record<string, DinosaurType> = {
     name: "アーキ",
     species: "アーケオプテリクス",
     catchphrase: "飛び方は知っている。でも体が言うことを聞かない",
-    themeColor: "#8B7355",
+    themeColor: "#FF9600",
     axes: { bodyPart: "U", quality: "D", eye: "E", spread: "W" },
   },
   UDBC: {
@@ -54,7 +54,7 @@ export const DINOSAURS: Record<string, DinosaurType> = {
     name: "ブラキー",
     species: "ブラキオサウルス",
     catchphrase: "高いところを見たいのに、首が重くて上がらない",
-    themeColor: "#3CB371",
+    themeColor: "#1CB0F6",
     axes: { bodyPart: "U", quality: "D", eye: "B", spread: "C" },
   },
   UDBW: {
@@ -62,7 +62,7 @@ export const DINOSAURS: Record<string, DinosaurType> = {
     name: "ディプロ",
     species: "ディプロドクス",
     catchphrase: "首から尻尾まで、全部がだるい",
-    themeColor: "#708090",
+    themeColor: "#2DB841",
     axes: { bodyPart: "U", quality: "D", eye: "B", spread: "W" },
   },
   LTEC: {
@@ -70,7 +70,7 @@ export const DINOSAURS: Record<string, DinosaurType> = {
     name: "カルノ",
     species: "カルノタウルス",
     catchphrase: "角（目）と鎧（腰）、両方が限界",
-    themeColor: "#B8860B",
+    themeColor: "#FF4B4B",
     axes: { bodyPart: "L", quality: "T", eye: "E", spread: "C" },
   },
   LTEW: {
@@ -78,7 +78,7 @@ export const DINOSAURS: Record<string, DinosaurType> = {
     name: "パラサウロ",
     species: "パラサウロロフス",
     catchphrase: "頭の重さが、脊椎全体を固くしている",
-    themeColor: "#CD853F",
+    themeColor: "#8549BA",
     axes: { bodyPart: "L", quality: "T", eye: "E", spread: "W" },
   },
   LTBC: {
@@ -86,7 +86,7 @@ export const DINOSAURS: Record<string, DinosaurType> = {
     name: "アンキー",
     species: "アンキロサウルス",
     catchphrase: "甲羅が重くて、立ち上がるのが怖い",
-    themeColor: "#556B2F",
+    themeColor: "#777777",
     axes: { bodyPart: "L", quality: "T", eye: "B", spread: "C" },
   },
   LTBW: {
@@ -94,7 +94,7 @@ export const DINOSAURS: Record<string, DinosaurType> = {
     name: "ステゴ",
     species: "ステゴサウルス",
     catchphrase: "板が並んだ背中。固さの連鎖が止まらない",
-    themeColor: "#8B4513",
+    themeColor: "#2DB841",
     axes: { bodyPart: "L", quality: "T", eye: "B", spread: "W" },
   },
   LDEC: {
@@ -102,7 +102,7 @@ export const DINOSAURS: Record<string, DinosaurType> = {
     name: "イグア",
     species: "イグアノドン",
     catchphrase: "立っているのか座っているのか、体が迷っている",
-    themeColor: "#20B2AA",
+    themeColor: "#FF9600",
     axes: { bodyPart: "L", quality: "D", eye: "E", spread: "C" },
   },
   LDEW: {
@@ -110,7 +110,7 @@ export const DINOSAURS: Record<string, DinosaurType> = {
     name: "アパト",
     species: "アパトサウルス",
     catchphrase: "体がでかすぎて、重力に負けている",
-    themeColor: "#9370DB",
+    themeColor: "#1CB0F6",
     axes: { bodyPart: "L", quality: "D", eye: "E", spread: "W" },
   },
   LDBC: {
@@ -118,7 +118,7 @@ export const DINOSAURS: Record<string, DinosaurType> = {
     name: "ラプトル",
     species: "ヴェロキラプトル",
     catchphrase: "速く動けるのに、腰だけが追いついていない",
-    themeColor: "#FF6347",
+    themeColor: "#FF4B4B",
     axes: { bodyPart: "L", quality: "D", eye: "B", spread: "C" },
   },
   LDBW: {
@@ -126,7 +126,7 @@ export const DINOSAURS: Record<string, DinosaurType> = {
     name: "アロ",
     species: "アロサウルス",
     catchphrase: "力はある。でも全部がだるい",
-    themeColor: "#DC143C",
+    themeColor: "#8549BA",
     axes: { bodyPart: "L", quality: "D", eye: "B", spread: "W" },
   },
 };

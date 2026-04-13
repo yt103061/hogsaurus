@@ -4,11 +4,14 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { getUserData, isCheckedInToday } from "@/lib/storage";
 import { getDinosaur } from "@/lib/dinosaurs";
+import { applyTheme } from "@/lib/theme";
 import { UserData, DinosaurType } from "@/types";
 import { ActionCard } from "@/components/home/ActionCard";
 import { StreakBar } from "@/components/home/StreakBar";
 import { WeekCalendar } from "@/components/home/WeekCalendar";
 import { XPCard } from "@/components/home/XPCard";
+
+const DEFAULT_COLOR = "#FF9600";
 
 export default function Home() {
   const [mounted, setMounted] = useState(false);
@@ -21,15 +24,19 @@ export default function Home() {
     const data = getUserData();
     setUserData(data);
     if (data) {
-      setDinosaur(getDinosaur(data.dinosaurCode) ?? null);
+      const dino = getDinosaur(data.dinosaurCode);
+      setDinosaur(dino ?? null);
       setCheckedInToday(isCheckedInToday());
+      applyTheme(dino?.themeColor ?? DEFAULT_COLOR);
+    } else {
+      applyTheme(DEFAULT_COLOR);
     }
     setMounted(true);
   }, []);
 
   if (!mounted) {
     return (
-      <main className="min-h-screen flex items-center justify-center">
+      <main className="min-h-screen flex items-center justify-center bg-white">
         <div className="text-4xl animate-pulse">🦕</div>
       </main>
     );
@@ -38,113 +45,109 @@ export default function Home() {
   // 未診断
   if (!userData || !dinosaur) {
     return (
-      <main className="min-h-screen flex flex-col items-center justify-center px-4 py-16">
-        <div className="text-center mb-12">
-          <div className="text-6xl mb-4">🦕</div>
-          <h1 className="text-4xl font-bold mb-2" style={{ color: "#D4A843" }}>ほぐサウルス</h1>
-          <p className="text-sm tracking-widest uppercase opacity-60 mb-6">Hogsaurus</p>
-          <p className="text-xl font-medium leading-relaxed" style={{ color: "#F5EDD8" }}>
+      <main className="min-h-screen flex flex-col items-center justify-center px-4 py-16 bg-white">
+        <div className="text-center mb-10">
+          <div
+            className="w-24 h-24 rounded-3xl mx-auto mb-5 flex items-center justify-center text-5xl"
+            style={{ background: "#FFF0D4", border: "2px solid #FF960040" }}
+          >
+            🦕
+          </div>
+          <h1 className="text-4xl font-black mb-1" style={{ color: DEFAULT_COLOR }}>
+            ほぐサウルス
+          </h1>
+          <p className="text-sm font-bold tracking-widest uppercase text-[#AAA] mb-5">Hogsaurus</p>
+          <p className="text-xl font-bold leading-relaxed text-[#1C1C1C]">
             デスクワーカーの体を、<br />
-            <span style={{ color: "#D4A843" }}>5分</span>で整える。
+            <span style={{ color: DEFAULT_COLOR }}>5分</span>で整える。
           </p>
         </div>
-        <div className="grid grid-cols-3 gap-6 mb-12 text-center max-w-sm w-full">
-          <div><div className="text-2xl mb-1">🎯</div><p className="text-xs opacity-70">16タイプ診断</p></div>
-          <div><div className="text-2xl mb-1">🤖</div><p className="text-xs opacity-70">AIケアプログラム</p></div>
-          <div><div className="text-2xl mb-1">🔥</div><p className="text-xs opacity-70">毎日の習慣化</p></div>
+
+        <div className="grid grid-cols-3 gap-3 mb-10 w-full max-w-sm">
+          {[
+            { emoji: "🎯", label: "16タイプ診断" },
+            { emoji: "🤖", label: "AIケアプログラム" },
+            { emoji: "🔥", label: "毎日の習慣化" },
+          ].map((f) => (
+            <div key={f.label} className="duo-card text-center py-4">
+              <div className="text-2xl mb-1">{f.emoji}</div>
+              <p className="text-xs font-bold text-[#777]">{f.label}</p>
+            </div>
+          ))}
         </div>
-        <Link
-          href="/diagnosis"
-          className="px-10 py-4 rounded-full text-lg font-bold transition-all duration-200 hover:scale-105 active:scale-95"
-          style={{ backgroundColor: "#D4A843", color: "#100C05" }}
-        >
-          恐竜タイプを診断する →
-        </Link>
-        <p className="mt-6 text-xs opacity-40">4問・約1分で診断完了</p>
-        <div className="fixed bottom-8 left-8 text-4xl opacity-10 rotate-[-15deg] select-none">🦖</div>
-        <div className="fixed top-8 right-8 text-3xl opacity-10 rotate-[10deg] select-none">🦕</div>
+
+        <div className="w-full max-w-sm">
+          <Link href="/diagnosis" className="btn-duo">
+            恐竜タイプを診断する →
+          </Link>
+        </div>
+        <p className="mt-4 text-xs font-bold text-[#AAA]">4問・約1分で診断完了</p>
       </main>
     );
   }
 
-  const themeColor = dinosaur.themeColor;
+  const tc = dinosaur.themeColor;
   const totalCheckins = userData.checkinHistory.length;
   const maxStreak = userData.maxStreak ?? userData.streakDays;
 
   return (
-    <main className="min-h-screen flex flex-col items-center px-4 py-10">
-      <div className="w-full max-w-md flex flex-col gap-5">
-        {/* キャラクターヘッダー */}
-        <div className="flex items-center gap-4">
+    <main className="min-h-screen bg-[#F7F7F7] px-4 py-8">
+      <div className="max-w-md mx-auto flex flex-col gap-4">
+        {/* Dino Badge Header */}
+        <div className="flex items-center gap-4 py-2">
           <div
-            className="w-14 h-14 rounded-2xl flex items-center justify-center text-3xl flex-shrink-0"
-            style={{ backgroundColor: `${themeColor}18`, border: `1px solid ${themeColor}30` }}
+            className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl flex-shrink-0"
+            style={{ background: `${tc}20`, border: `2px solid ${tc}40` }}
           >
             🦕
           </div>
           <div>
-            <div className="flex items-center gap-2">
-              <span
-                className="text-[10px] font-bold tracking-widest px-2 py-0.5 rounded-full"
-                style={{ backgroundColor: `${themeColor}20`, color: themeColor }}
-              >
-                {dinosaur.code}
-              </span>
-            </div>
-            <p className="text-lg font-bold mt-0.5" style={{ color: themeColor }}>{dinosaur.name}</p>
-            <p className="text-xs opacity-40">{dinosaur.species}</p>
+            <span
+              className="text-[10px] font-extrabold tracking-wider px-2 py-0.5 rounded-lg text-white"
+              style={{ backgroundColor: tc }}
+            >
+              {dinosaur.code}
+            </span>
+            <p className="text-lg font-extrabold text-[#1C1C1C] mt-0.5">{dinosaur.name}</p>
+            <p className="text-xs font-semibold text-[#777]">{dinosaur.species}</p>
           </div>
         </div>
 
-        {/* アクションカード */}
         <ActionCard
           isCheckedIn={checkedInToday}
           streakDays={userData.streakDays}
-          themeColor={themeColor}
+          typeColor={tc}
           dinosaurName={dinosaur.name}
           hour={hour}
         />
 
-        {/* ストリークバー */}
-        <div
-          className="w-full rounded-3xl p-5"
-          style={{ backgroundColor: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)" }}
-        >
-          <StreakBar streakDays={userData.streakDays} themeColor={themeColor} />
+        <div className="duo-card">
+          <StreakBar streakDays={userData.streakDays} typeColor={tc} />
         </div>
 
-        {/* ウィークカレンダー */}
-        <div
-          className="w-full rounded-3xl p-5"
-          style={{ backgroundColor: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)" }}
-        >
-          <WeekCalendar checkinHistory={userData.checkinHistory} themeColor={themeColor} />
+        <div className="duo-card">
+          <WeekCalendar checkinHistory={userData.checkinHistory} typeColor={tc} />
         </div>
 
-        {/* XP カード */}
-        <XPCard totalXP={userData.totalXP} themeColor={themeColor} />
+        <XPCard totalXP={userData.totalXP} typeColor={tc} />
 
-        {/* スタッツ */}
         <div className="grid grid-cols-2 gap-3">
-          <div
-            className="rounded-2xl p-4 text-center"
-            style={{ backgroundColor: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)" }}
-          >
-            <p className="text-2xl font-bold" style={{ color: themeColor }}>{totalCheckins}</p>
-            <p className="text-xs opacity-40 mt-0.5">総チェックイン</p>
-          </div>
-          <div
-            className="rounded-2xl p-4 text-center"
-            style={{ backgroundColor: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)" }}
-          >
-            <p className="text-2xl font-bold" style={{ color: themeColor }}>{maxStreak}</p>
-            <p className="text-xs opacity-40 mt-0.5">最長ストリーク</p>
-          </div>
+          {[
+            { value: String(totalCheckins), label: "総チェックイン" },
+            { value: `${maxStreak}日`, label: "最長ストリーク" },
+          ].map((stat) => (
+            <div key={stat.label} className="duo-card text-center py-4">
+              <p className="text-2xl font-black" style={{ color: tc }}>{stat.value}</p>
+              <p className="text-xs font-bold text-[#777] mt-0.5">{stat.label}</p>
+            </div>
+          ))}
         </div>
 
-        {/* フッター */}
-        <div className="text-center pb-2">
-          <Link href="/diagnosis" className="text-xs opacity-20 hover:opacity-50 transition-opacity">
+        <div className="text-center pb-4">
+          <Link
+            href="/diagnosis"
+            className="text-xs font-bold text-[#AAA] hover:text-[#777] transition-colors"
+          >
             恐竜タイプを診断し直す
           </Link>
         </div>

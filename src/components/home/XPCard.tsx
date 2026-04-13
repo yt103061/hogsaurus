@@ -4,46 +4,53 @@ import { useEffect, useState } from "react";
 
 interface XPCardProps {
   totalXP: number;
-  themeColor: string;
+  typeColor: string;
 }
 
 const XP_PER_LEVEL = 300;
 
-export function XPCard({ totalXP, themeColor }: XPCardProps) {
+export function XPCard({ totalXP, typeColor }: XPCardProps) {
   const level = Math.floor(totalXP / XP_PER_LEVEL) + 1;
   const xpInLevel = totalXP % XP_PER_LEVEL;
   const targetPct = (xpInLevel / XP_PER_LEVEL) * 100;
   const [barPct, setBarPct] = useState(0);
 
   useEffect(() => {
-    const timer = setTimeout(() => setBarPct(targetPct), 100);
+    const timer = setTimeout(() => setBarPct(targetPct), 150);
     return () => clearTimeout(timer);
   }, [targetPct]);
 
   return (
-    <div
-      className="w-full rounded-3xl p-5"
-      style={{ backgroundColor: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)" }}
-    >
-      <div className="flex justify-between items-center mb-3">
-        <div>
-          <p className="text-xs opacity-40">レベル</p>
-          <p className="text-2xl font-bold" style={{ color: themeColor }}>Lv.{level}</p>
+    <div className="duo-card">
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-3">
+          <div
+            className="px-3 py-1.5 rounded-xl font-extrabold text-white text-base"
+            style={{ backgroundColor: typeColor }}
+          >
+            Lv.{level}
+          </div>
+          <div>
+            <p className="text-[10px] font-bold text-[#AAA]">総XP</p>
+            <p className="text-lg font-extrabold text-[#1C1C1C]">{totalXP.toLocaleString()}</p>
+          </div>
         </div>
         <div className="text-right">
-          <p className="text-xs opacity-40">総XP</p>
-          <p className="text-lg font-bold" style={{ color: "#F5EDD8" }}>{totalXP.toLocaleString()}</p>
+          <p className="text-[10px] font-bold text-[#AAA]">次のレベルまで</p>
+          <p className="text-base font-extrabold" style={{ color: typeColor }}>
+            {XP_PER_LEVEL - xpInLevel} XP
+          </p>
         </div>
       </div>
-      <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: `${themeColor}15` }}>
+      <div className="w-full h-4 rounded-full bg-[#E5E5E5] overflow-hidden">
         <div
           className="h-full rounded-full transition-all duration-700 ease-out"
-          style={{ width: `${barPct}%`, backgroundColor: themeColor }}
+          style={{ width: `${barPct}%`, backgroundColor: typeColor }}
         />
       </div>
       <div className="flex justify-between mt-1.5">
-        <p className="text-[10px] opacity-30">{xpInLevel} XP</p>
-        <p className="text-[10px] opacity-30">Lv.{level + 1} まで {XP_PER_LEVEL - xpInLevel} XP</p>
+        <span className="text-[10px] font-bold text-[#AAA]">{xpInLevel} XP</span>
+        <span className="text-[10px] font-bold text-[#AAA]">{XP_PER_LEVEL} XP</span>
       </div>
     </div>
   );

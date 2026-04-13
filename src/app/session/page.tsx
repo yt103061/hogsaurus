@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { getPendingCheckin, getUserData } from "@/lib/storage";
 import { getDinosaur } from "@/lib/dinosaurs";
+import { applyTheme } from "@/lib/theme";
 import { CareProgram, Exercise } from "@/types";
 import { CircularTimer } from "@/components/session/CircularTimer";
 import { BodySilhouette, getHighlightedPart } from "@/components/session/BodySilhouette";
@@ -19,7 +20,7 @@ function getCoachingMessage(timeLeft: number, duration: number): string {
 export default function SessionPage() {
   const router = useRouter();
   const [program, setProgram] = useState<CareProgram | null>(null);
-  const [themeColor, setThemeColor] = useState("#D4A843");
+  const [typeColor, setTypeColor] = useState("#FF9600");
   const [currentIndex, setCurrentIndex] = useState(0);
   const [timeLeft, setTimeLeft] = useState(0);
   const [currentDuration, setCurrentDuration] = useState(0);
@@ -37,7 +38,7 @@ export default function SessionPage() {
     const data = getUserData();
     if (data) {
       const dino = getDinosaur(data.dinosaurCode);
-      if (dino) setThemeColor(dino.themeColor);
+      if (dino) { setTypeColor(dino.themeColor); applyTheme(dino.themeColor); }
     }
   }, [router]);
 
@@ -48,10 +49,7 @@ export default function SessionPage() {
         if (prev <= 1) {
           setCurrentIndex((ci) => {
             const next = ci + 1;
-            if (next >= program.exercises.length) {
-              setIsFinished(true);
-              return ci;
-            }
+            if (next >= program.exercises.length) { setIsFinished(true); return ci; }
             const nextEx = program.exercises[next];
             setCurrentDuration(nextEx.duration);
             setTimeLeft(nextEx.duration);
@@ -83,7 +81,7 @@ export default function SessionPage() {
 
   if (!program) {
     return (
-      <main className="min-h-screen flex items-center justify-center">
+      <main className="min-h-screen flex items-center justify-center bg-white">
         <div className="text-4xl animate-pulse">🦕</div>
       </main>
     );
@@ -93,18 +91,16 @@ export default function SessionPage() {
 
   if (isFinished) {
     return (
-      <main className="min-h-screen flex flex-col items-center justify-center px-4">
+      <main className="min-h-screen flex flex-col items-center justify-center px-4 bg-[#F7F7F7]">
         <div className="text-center">
-          <div className="text-6xl mb-6">🎉</div>
-          <h1 className="text-3xl font-bold mb-3" style={{ color: themeColor }}>完了！</h1>
-          <p className="text-base opacity-60 mb-4">{program.afterMessage}</p>
-          <button
-            onClick={() => router.push("/feedback")}
-            className="px-10 py-4 rounded-full text-lg font-bold transition-all duration-200 hover:scale-105 active:scale-95 mt-4"
-            style={{ backgroundColor: themeColor, color: "#100C05" }}
-          >
-            フィードバックへ →
-          </button>
+          <div className="text-6xl mb-5 animate-nice-pop inline-block">🎉</div>
+          <h1 className="text-3xl font-black mb-3" style={{ color: typeColor }}>完了！</h1>
+          <p className="text-base font-semibold text-[#777] mb-8">{program.afterMessage}</p>
+          <div className="max-w-xs mx-auto">
+            <button onClick={() => router.push("/feedback")} className="btn-duo">
+              フィードバックへ →
+            </button>
+          </div>
         </div>
       </main>
     );
@@ -113,7 +109,6 @@ export default function SessionPage() {
   const current = exercises[currentIndex];
   const highlight = getHighlightedPart(current.name);
   const coaching = getCoachingMessage(timeLeft, currentDuration);
-
   const totalDuration = exercises.reduce((sum, e) => sum + e.duration, 0);
   const elapsed =
     exercises.slice(0, currentIndex).reduce((sum, e) => sum + e.duration, 0) +
@@ -121,89 +116,69 @@ export default function SessionPage() {
   const overallProgress = Math.min((elapsed / totalDuration) * 100, 100);
 
   return (
-    <main className="min-h-screen flex flex-col px-4 py-8">
-      {/* ヘッダー：プログレスバー + 種目カウント */}
-      <div className="w-full max-w-md mx-auto mb-6">
-        <div className="flex justify-between text-xs opacity-40 mb-2">
+    <main className="min-h-screen flex flex-col px-4 py-8 bg-[#F7F7F7]">
+      <div className="w-full max-w-md mx-auto mb-5">
+        <div className="flex justify-between text-xs font-extrabold text-[#AAA] mb-2">
           <span>{program.title}</span>
           <span>{currentIndex + 1} / {exercises.length}</span>
         </div>
-        <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: "rgba(212,168,67,0.15)" }}>
+        <div className="w-full h-4 rounded-full bg-[#E5E5E5] overflow-hidden">
           <div
             className="h-full rounded-full transition-all duration-1000"
-            style={{ width: `${overallProgress}%`, backgroundColor: themeColor }}
+            style={{ width: `${overallProgress}%`, backgroundColor: typeColor }}
           />
         </div>
-        {/* 種目ドット */}
         <div className="flex gap-1.5 mt-2 justify-center">
           {exercises.map((_, i) => (
             <div
               key={i}
-              className="h-1 rounded-full transition-all duration-300"
+              className="h-1.5 rounded-full transition-all duration-300"
               style={{
                 width: i === currentIndex ? "24px" : "8px",
-                backgroundColor:
-                  i < currentIndex ? themeColor
-                  : i === currentIndex ? `${themeColor}90`
-                  : "rgba(212,168,67,0.15)",
+                backgroundColor: i < currentIndex ? typeColor : i === currentIndex ? `${typeColor}80` : "#E5E5E5",
               }}
             />
           ))}
         </div>
       </div>
 
-      {/* メインエリア */}
-      <div className="flex-1 flex flex-col items-center justify-center w-full max-w-md mx-auto gap-6">
-        {/* スキップボタン */}
+      <div className="flex-1 flex flex-col items-center justify-center w-full max-w-md mx-auto gap-5">
         <div className="w-full flex justify-end">
-          <button onClick={handleSkip} className="text-xs opacity-30 hover:opacity-60 transition-opacity px-3 py-1">
+          <button
+            onClick={handleSkip}
+            className="text-xs font-extrabold text-[#AAA] hover:text-[#777] px-3 py-1 transition-colors"
+          >
             スキップ
           </button>
         </div>
 
-        {/* ボディシルエット + タイマー横並び */}
         <div className="flex items-center justify-center gap-8 w-full">
-          <BodySilhouette highlight={highlight} themeColor={themeColor} />
-          <CircularTimer timeLeft={timeLeft} duration={currentDuration} themeColor={themeColor} />
+          <BodySilhouette highlight={highlight} typeColor={typeColor} />
+          <CircularTimer timeLeft={timeLeft} duration={currentDuration} typeColor={typeColor} />
         </div>
 
-        {/* 種目名 */}
         <div className="text-center">
-          <h2
-            className="text-2xl font-bold mb-2 transition-all duration-300"
-            style={{ color: "#F5EDD8", opacity: showComplete ? 0 : 1 }}
-          >
-            {current.name}
-          </h2>
-          <p className="text-sm opacity-70 leading-relaxed max-w-xs">{current.instruction}</p>
+          <h2 className="text-2xl font-black text-[#1C1C1C] mb-2">{current.name}</h2>
+          <p className="text-sm font-semibold text-[#777] leading-relaxed max-w-xs">{current.instruction}</p>
         </div>
 
-        {/* コーチングバブル */}
         <div
-          className="px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-500"
-          style={{ backgroundColor: `${themeColor}15`, color: themeColor }}
+          className="px-5 py-2.5 rounded-full text-sm font-extrabold text-white"
+          style={{ backgroundColor: typeColor }}
         >
           {coaching}
         </div>
 
-        {/* ポイント */}
-        <div
-          className="w-full rounded-2xl p-4 text-center"
-          style={{ backgroundColor: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)" }}
-        >
-          <p className="text-xs opacity-40 mb-1">意識するポイント</p>
-          <p className="text-sm" style={{ color: "#F5EDD8" }}>💡 {current.tip}</p>
+        <div className="duo-card w-full text-center">
+          <p className="text-xs font-extrabold text-[#AAA] mb-1">意識するポイント</p>
+          <p className="text-sm font-semibold text-[#1C1C1C]">💡 {current.tip}</p>
         </div>
 
-        {/* 完了オーバーレイ */}
         {showComplete && (
-          <div
-            className="fixed inset-0 flex items-center justify-center pointer-events-none"
-            style={{ zIndex: 50 }}
-          >
+          <div className="fixed inset-0 flex items-center justify-center pointer-events-none" style={{ zIndex: 50 }}>
             <div
-              className="text-5xl font-bold animate-pop-in"
-              style={{ color: themeColor }}
+              className="text-4xl font-black animate-nice-pop px-8 py-4 rounded-2xl text-white shadow-lg"
+              style={{ backgroundColor: typeColor }}
             >
               完了 ✓
             </div>
