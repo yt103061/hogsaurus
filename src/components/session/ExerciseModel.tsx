@@ -85,7 +85,7 @@ interface PosedModelProps {
 }
 
 function PosedModel({ poseKey, typeColor }: PosedModelProps) {
-  const { scene } = useGLTF("/models/character.glb");
+  const { scene } = useGLTF("/models/ybot.glb");
   const bonesRef = useRef<Record<string, THREE.Bone>>({});
   const originalRotations = useRef<Record<string, THREE.Euler>>({});
   const timeRef = useRef(0);
@@ -200,4 +200,4 @@ export function ExerciseModel({ exerciseName, typeColor }: ExerciseModelProps) {
   );
 }
 
-useGLTF.preload("/models/character.glb");
+useGLTF.preload("/models/ybot.glb");
