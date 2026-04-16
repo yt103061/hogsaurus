@@ -186,10 +186,24 @@ function PosedModel({ poseKey, typeColor }: PosedModelProps) {
     });
   }, [scene, typeColor, gradientMap]);
 
+  // poseKey が変わったらタイマーをリセット（ニュートラル姿勢から再スタート）
+  useEffect(() => {
+    timeRef.current = 0;
+  }, [poseKey]);
+
   useFrame((_, delta) => {
     timeRef.current += delta;
     const pose = EXERCISE_POSES[poseKey] ?? EXERCISE_POSES["idle"];
     const t = Math.sin(timeRef.current * (Math.PI / pose.duration));
+
+    // 全ボーンをオリジナルに戻してから現在のポーズだけ適用
+    Object.entries(bonesRef.current).forEach(([name, bone]) => {
+      const orig = originalRotations.current[name];
+      if (!orig) return;
+      bone.rotation.x = orig.x;
+      bone.rotation.y = orig.y;
+      bone.rotation.z = orig.z;
+    });
 
     Object.entries(pose.bones).forEach(([mixamorigName, target]) => {
       const bone = resolveBone(bonesRef.current, mixamorigName);
@@ -199,10 +213,9 @@ function PosedModel({ poseKey, typeColor }: PosedModelProps) {
       ) ?? mixamorigName;
       const orig = originalRotations.current[origKey];
       if (!orig) return;
-      const sitOffset = SIT_POSE[mixamorigName] ?? {};
-      bone.rotation.x = orig.x + (sitOffset.x ?? 0) + (target.x ?? 0) * t;
-      bone.rotation.y = orig.y + (sitOffset.y ?? 0) + (target.y ?? 0) * t;
-      bone.rotation.z = orig.z + (sitOffset.z ?? 0) + (target.z ?? 0) * t;
+      bone.rotation.x = orig.x + (target.x ?? 0) * t;
+      bone.rotation.y = orig.y + (target.y ?? 0) * t;
+      bone.rotation.z = orig.z + (target.z ?? 0) * t;
     });
   });
 
