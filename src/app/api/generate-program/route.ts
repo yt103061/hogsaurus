@@ -34,10 +34,20 @@ const DEFAULT_PROGRAM: CareProgram = {
   afterMessage: "お疲れさまでした！体が少し楽になりましたか？",
 };
 
-const TIME_LABEL: Record<string, string> = {
-  morning: "朝（穏やかな強度）",
-  noon: "昼（活性化系）",
-  evening: "夜（回復・リラックス系）",
+// 症状ごとの重点アプローチ
+const SYMPTOM_APPROACH: Record<string, string> = {
+  "首・後頭部が重い": "首の前後左右のストレッチ、後頭下筋群のほぐし、胸鎖乳突筋のリリース",
+  "肩・肩甲骨が固い": "肩甲骨の内転・外転、胸椎の回旋、大胸筋・小胸筋のストレッチ",
+  "腰・お尻が重だるい": "股関節屈筋群（腸腰筋）のリリース、梨状筋ストレッチ、骨盤の前後傾",
+  "目・頭が疲れている": "眼球運動、後頭部・側頭筋のほぐし、首の前面ストレッチ、深呼吸",
+  "全体的にだるい": "全身の血流促進、体幹の緩やかな活性化、末端の血行改善、呼吸法",
+  "今日は割と元気": "コンディション維持、体の軽い活性化、予防的なストレッチ",
+};
+
+const TIME_GUIDANCE: Record<string, string> = {
+  morning: "朝：体を穏やかに覚醒させる動き。急激な負荷や深い前屈は避け、血流を促す軽めの動きで。",
+  noon: "昼：集中力を回復させ眠気を覚ます動き。少し活動的な動きで覚醒を維持。",
+  evening: "夜：副交感神経を優位にする回復系。ゆっくりとした動き、深い呼吸を多めに。",
 };
 
 export async function POST(req: Request): Promise<Response> {
@@ -66,21 +76,50 @@ export async function POST(req: Request): Promise<Response> {
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
+    const model = genAI.getGenerativeModel({
+      model: "gemini-2.5-flash-lite",
+      generationConfig: {
+        temperature: 1.0,
+        responseMimeType: "application/json",
+      },
+    });
 
-    const prompt = `あなたはデスクワーカーの体の不調を解消するプロフェッショナルなストレッチ指導者です。
+    // 症状ごとの重点アプローチを組み立て
+    const approachList = symptoms
+      .map((s) => SYMPTOM_APPROACH[s])
+      .filter(Boolean)
+      .map((a, i) => `  ${i + 1}. ${symptoms[i]}：${a}`)
+      .join("\n");
 
-ユーザー情報:
+    const dateStr = new Date().toLocaleDateString("ja-JP", {
+      month: "long",
+      day: "numeric",
+      weekday: "long",
+    });
+
+    const prompt = `あなたはデスクワーカーの体のケアを専門とするストレッチ指導者です。
+今日（${dateStr}）のパーソナライズされたケアプログラムを作成してください。
+
+【ユーザー状態】
 - 恐竜タイプ: ${typeDescription}
 - 今日の症状: ${symptoms.join("・")}
-- 辛さレベル: ${intensity}/5
-- 時間帯: ${TIME_LABEL[timeOfDay] ?? timeOfDay}
+- 辛さレベル: ${intensity}/5（5が最も辛い）
+- 実施時間帯: ${TIME_GUIDANCE[timeOfDay]}
 
-以下のJSON形式で今日の5分プログラムを返してください。他のテキストは一切含めないでください。
+【症状別の重点アプローチ（必ず反映してください）】
+${approachList || "  全身のリフレッシュ、血流促進"}
+
+【プログラム作成の指針】
+- 症状に直接対応する種目を優先的に選ぶ
+- 辛さ4〜5の場合は強度を下げ、丁寧でゆっくりした動きにする
+- 辛さ1〜2の場合はしっかり効かせる動きにする
+- 職場・在宅どちらでも椅子・デスクを使ってできる動き（床に寝転ぶのはNG）
+
+以下のJSON形式のみを返してください。他のテキストは一切含めないでください。
 
 {
   "title": "今日のプログラム名（15文字以内）",
-  "reason": "なぜこのプログラムか（40文字以内、体の状態を言語化）",
+  "reason": "なぜこのプログラムか（40文字以内、症状と体の状態を言語化）",
   "exercises": [
     {
       "name": "種目名（10文字以内）",
@@ -92,11 +131,7 @@ export async function POST(req: Request): Promise<Response> {
   "afterMessage": "終わった後への一言（30文字以内）"
 }
 
-条件:
-- 種目は3〜5個
-- 合計時間が240〜360秒になるよう調整
-- 器具不要・自宅や職場でできる動き
-- 時間帯に合わせた強度（朝は穏やか、夜は回復系）`;
+条件：種目は3〜5個、合計240〜360秒`;
 
     const result = await model.generateContent(prompt);
     const text = result.response.text();

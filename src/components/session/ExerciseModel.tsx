@@ -5,9 +5,17 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 
-// ────────────── 座りベースポーズ（ボーン名確認後に再設定） ──────────────
-// 現在は無効化：モデルのボーン名が不明なため空にしてある
-const SIT_POSE: Record<string, { x?: number; y?: number; z?: number }> = {};
+// ────────────── 座りベースポーズ ──────────────
+// ボーン名確認済み（mixamorigLeftUpLeg 形式）
+// 浮いて見えないよう控えめな値に設定
+const SIT_POSE: Record<string, { x?: number; y?: number; z?: number }> = {
+  mixamorigLeftUpLeg:  { x: -0.9 },
+  mixamorigRightUpLeg: { x: -0.9 },
+  mixamorigLeftLeg:    { x: 0.8 },
+  mixamorigRightLeg:   { x: 0.8 },
+  mixamorigLeftFoot:   { x: 0.2 },
+  mixamorigRightFoot:  { x: 0.2 },
+};
 
 // ────────────── ポーズ定義 ──────────────
 const EXERCISE_POSES: Record<string, {
@@ -148,14 +156,11 @@ function PosedModel({ poseKey, typeColor }: PosedModelProps) {
       groupRef.current.position.y = -box.min.y * s - 1.0;
     }
 
-    // 座りベースポーズを適用
-    Object.entries(SIT_POSE).forEach(([mixamorigName, target]) => {
-      const bone = resolveBone(bonesRef.current, mixamorigName);
+    // 座りベースポーズを適用（ボーン名は直接指定）
+    Object.entries(SIT_POSE).forEach(([boneName, target]) => {
+      const bone = bonesRef.current[boneName];
       if (!bone) return;
-      const origKey = Object.keys(bonesRef.current).find(
-        (k) => bonesRef.current[k] === bone
-      ) ?? mixamorigName;
-      const orig = originalRotations.current[origKey];
+      const orig = originalRotations.current[boneName];
       if (target.x !== undefined) bone.rotation.x = (orig?.x ?? 0) + target.x;
       if (target.y !== undefined) bone.rotation.y = (orig?.y ?? 0) + target.y;
       if (target.z !== undefined) bone.rotation.z = (orig?.z ?? 0) + target.z;

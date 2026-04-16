@@ -16,10 +16,7 @@ export interface DiagnosisQuestion {
   id: number;
   axis: "UL" | "TD" | "EB" | "CW";
   text: string;
-  labelA: string; // A極（左）の説明
-  labelB: string; // B極（右）の説明
-  valueA: "U" | "T" | "E" | "C";
-  valueB: "L" | "D" | "B" | "W";
+  options: { label: string; score: number }[]; // +positive=A側, -negative=B側
 }
 
 export interface Exercise {
