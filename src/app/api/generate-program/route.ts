@@ -80,7 +80,6 @@ export async function POST(req: Request): Promise<Response> {
       model: "gemini-2.5-flash-lite",
       generationConfig: {
         temperature: 1.0,
-        responseMimeType: "application/json",
       },
     });
 
@@ -143,7 +142,8 @@ ${approachList || "  全身のリフレッシュ、血流促進"}
 
     const program = JSON.parse(jsonMatch[0]) as CareProgram;
     return Response.json(program);
-  } catch {
+  } catch (error) {
+    console.error("[generate-program] API error:", error);
     return Response.json(DEFAULT_PROGRAM);
   }
 }
