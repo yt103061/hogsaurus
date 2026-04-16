@@ -12,6 +12,7 @@ const SIT_POSE: Record<string, { x?: number; y?: number; z?: number }> = {};
 const EXERCISE_POSES: Record<string, {
   bones: Record<string, { x?: number; y?: number; z?: number }>;
   duration: number;
+  absT?: boolean; // true: t を abs(sin) にして「戻り方向」が体の逆側に行かないようにする
 }> = {
   "neck-side": {
     bones: { mixamorig_Neck: { z: 0.35 }, mixamorig_Head: { z: 0.15 } },
@@ -46,13 +47,17 @@ const EXERCISE_POSES: Record<string, {
     },
     duration: 2.5,
   },
+  // 腕の初期位置が「下げた状態」のため、水平(T字)まで約1.57rad、頭上まで約3.1rad
   "overhead": {
     bones: {
-      mixamorig_LeftArm: { z: -1.4 },
-      mixamorig_RightArm: { z: 1.4 },
+      mixamorig_LeftArm: { z: -3.0 },
+      mixamorig_RightArm: { z: 3.0 },
+      mixamorig_LeftForeArm: { z: -0.4 },
+      mixamorig_RightForeArm: { z: 0.4 },
       mixamorig_Spine2: { x: -0.1 },
     },
     duration: 2.5,
+    absT: true, // 腕が体の後ろ側に回り込まないよう常に0〜1の範囲で動かす
   },
   "idle": { bones: {}, duration: 2.5 },
 };
@@ -194,7 +199,8 @@ function PosedModel({ poseKey, typeColor }: PosedModelProps) {
   useFrame((_, delta) => {
     timeRef.current += delta;
     const pose = EXERCISE_POSES[poseKey] ?? EXERCISE_POSES["idle"];
-    const t = Math.sin(timeRef.current * (Math.PI / pose.duration));
+    const rawT = Math.sin(timeRef.current * (Math.PI / pose.duration));
+    const t = pose.absT ? Math.abs(rawT) : rawT;
 
     // 全ボーンをオリジナルに戻してから現在のポーズだけ適用
     Object.entries(bonesRef.current).forEach(([name, bone]) => {
