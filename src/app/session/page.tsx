@@ -8,12 +8,11 @@ import { getDinosaur } from "@/lib/dinosaurs";
 import { applyTheme } from "@/lib/theme";
 import { CareProgram, Exercise } from "@/types";
 import { CircularTimer } from "@/components/session/CircularTimer";
-import { BodySilhouette, getHighlightedPart } from "@/components/session/BodySilhouette";
 
-// SSR を回避して Canvas を読み込む（一時デバッグ用）
-const DebugCanvas = dynamic(
-  () => import("@/components/session/DebugCanvas").then((m) => m.DebugCanvas),
-  { ssr: false }
+// Three.js は SSR 不可のため dynamic import
+const ExerciseModel = dynamic(
+  () => import("@/components/session/ExerciseModel").then((m) => m.ExerciseModel),
+  { ssr: false, loading: () => <div style={{ width: 180, height: 220, margin: "0 auto" }} /> }
 );
 
 function getCoachingMessage(timeLeft: number, duration: number): string {
@@ -114,7 +113,6 @@ export default function SessionPage() {
   }
 
   const current = exercises[currentIndex];
-  const highlight = getHighlightedPart(current.name);
   const coaching = getCoachingMessage(timeLeft, currentDuration);
   const totalDuration = exercises.reduce((sum, e) => sum + e.duration, 0);
   const elapsed =
@@ -124,9 +122,8 @@ export default function SessionPage() {
 
   return (
     <main className="min-h-screen flex flex-col px-4 py-8 bg-[#F7F7F7]">
-      {/* 一時デバッグ: コンソールでボーン名を確認するための非表示 Canvas */}
-      <DebugCanvas />
-      <div className="w-full max-w-md mx-auto mb-5">
+      {/* 進捗ヘッダー */}
+      <div className="w-full max-w-md mx-auto mb-4">
         <div className="flex justify-between text-xs font-extrabold text-[#AAA] mb-2">
           <span>{program.title}</span>
           <span>{currentIndex + 1} / {exercises.length}</span>
@@ -151,7 +148,8 @@ export default function SessionPage() {
         </div>
       </div>
 
-      <div className="flex-1 flex flex-col items-center justify-center w-full max-w-md mx-auto gap-5">
+      {/* メインエリア */}
+      <div className="flex-1 flex flex-col items-center justify-center w-full max-w-md mx-auto gap-4">
         <div className="w-full flex justify-end">
           <button
             onClick={handleSkip}
@@ -161,16 +159,19 @@ export default function SessionPage() {
           </button>
         </div>
 
-        <div className="flex items-center justify-center gap-8 w-full">
-          <BodySilhouette highlight={highlight} typeColor={typeColor} />
-          <CircularTimer timeLeft={timeLeft} duration={currentDuration} typeColor={typeColor} />
-        </div>
+        {/* 3D モデル */}
+        <ExerciseModel exerciseName={current.name} typeColor={typeColor} />
 
+        {/* タイマー */}
+        <CircularTimer timeLeft={timeLeft} duration={currentDuration} typeColor={typeColor} />
+
+        {/* 種目名・説明 */}
         <div className="text-center">
           <h2 className="text-2xl font-black text-[#1C1C1C] mb-2">{current.name}</h2>
           <p className="text-sm font-semibold text-[#777] leading-relaxed max-w-xs">{current.instruction}</p>
         </div>
 
+        {/* コーチング */}
         <div
           className="px-5 py-2.5 rounded-full text-sm font-extrabold text-white"
           style={{ backgroundColor: typeColor }}
@@ -178,6 +179,7 @@ export default function SessionPage() {
           {coaching}
         </div>
 
+        {/* ポイント */}
         <div className="duo-card w-full text-center">
           <p className="text-xs font-extrabold text-[#AAA] mb-1">意識するポイント</p>
           <p className="text-sm font-semibold text-[#1C1C1C]">💡 {current.tip}</p>
