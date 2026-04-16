@@ -5,17 +5,8 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 
-// ────────────── 座りベースポーズ ──────────────
-// ボーン名確認済み（mixamorigLeftUpLeg 形式）
-// 浮いて見えないよう控えめな値に設定
-const SIT_POSE: Record<string, { x?: number; y?: number; z?: number }> = {
-  mixamorigLeftUpLeg:  { x: -0.9 },
-  mixamorigRightUpLeg: { x: -0.9 },
-  mixamorigLeftLeg:    { x: 0.8 },
-  mixamorigRightLeg:   { x: 0.8 },
-  mixamorigLeftFoot:   { x: 0.2 },
-  mixamorigRightFoot:  { x: 0.2 },
-};
+// SIT_POSE は椅子のない空中では見た目がおかしいため無効
+const SIT_POSE: Record<string, { x?: number; y?: number; z?: number }> = {};
 
 // ────────────── ポーズ定義 ──────────────
 const EXERCISE_POSES: Record<string, {
