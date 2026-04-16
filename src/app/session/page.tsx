@@ -2,12 +2,19 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
 import { getPendingCheckin, getUserData } from "@/lib/storage";
 import { getDinosaur } from "@/lib/dinosaurs";
 import { applyTheme } from "@/lib/theme";
 import { CareProgram, Exercise } from "@/types";
 import { CircularTimer } from "@/components/session/CircularTimer";
 import { BodySilhouette, getHighlightedPart } from "@/components/session/BodySilhouette";
+
+// SSR を回避して Canvas を読み込む（一時デバッグ用）
+const DebugCanvas = dynamic(
+  () => import("@/components/session/DebugCanvas").then((m) => m.DebugCanvas),
+  { ssr: false }
+);
 
 function getCoachingMessage(timeLeft: number, duration: number): string {
   const ratio = timeLeft / duration;
@@ -117,6 +124,8 @@ export default function SessionPage() {
 
   return (
     <main className="min-h-screen flex flex-col px-4 py-8 bg-[#F7F7F7]">
+      {/* 一時デバッグ: コンソールでボーン名を確認するための非表示 Canvas */}
+      <DebugCanvas />
       <div className="w-full max-w-md mx-auto mb-5">
         <div className="flex justify-between text-xs font-extrabold text-[#AAA] mb-2">
           <span>{program.title}</span>
