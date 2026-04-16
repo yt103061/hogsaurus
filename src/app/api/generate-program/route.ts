@@ -70,10 +70,14 @@ export async function POST(req: Request): Promise<Response> {
       ? `${dinosaur.name}（${dinosaur.species}）- ${dinosaur.catchphrase}`
       : dinosaurCode;
 
+    console.log("[generate-program] request:", { dinosaurCode, symptoms, intensity, timeOfDay });
+
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
-      return Response.json(DEFAULT_PROGRAM);
+      console.warn("[generate-program] GEMINI_API_KEY not set → DEFAULT");
+      return Response.json({ ...DEFAULT_PROGRAM, _source: "default:no-key" });
     }
+    console.log("[generate-program] API key found, calling Gemini...");
 
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({
@@ -134,16 +138,19 @@ ${approachList || "  全身のリフレッシュ、血流促進"}
 
     const result = await model.generateContent(prompt);
     const text = result.response.text();
+    console.log("[generate-program] Gemini raw response (first 300 chars):", text.slice(0, 300));
 
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
-      return Response.json(DEFAULT_PROGRAM);
+      console.warn("[generate-program] no JSON found in response → DEFAULT");
+      return Response.json({ ...DEFAULT_PROGRAM, _source: "default:no-json" });
     }
 
     const program = JSON.parse(jsonMatch[0]) as CareProgram;
+    console.log("[generate-program] SUCCESS title:", program.title, "exercises:", program.exercises.length);
     return Response.json(program);
   } catch (error) {
-    console.error("[generate-program] API error:", error);
-    return Response.json(DEFAULT_PROGRAM);
+    console.error("[generate-program] API error → DEFAULT:", error);
+    return Response.json({ ...DEFAULT_PROGRAM, _source: "default:error" });
   }
 }
