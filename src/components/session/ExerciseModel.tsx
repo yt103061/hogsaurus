@@ -86,6 +86,7 @@ interface PosedModelProps {
 
 function PosedModel({ poseKey, typeColor }: PosedModelProps) {
   const { scene } = useGLTF("/models/character.glb");
+  const groupRef = useRef<THREE.Group>(null);
   const bonesRef = useRef<Record<string, THREE.Bone>>({});
   const originalRotations = useRef<Record<string, THREE.Euler>>({});
   const timeRef = useRef(0);
@@ -114,6 +115,18 @@ function PosedModel({ poseKey, typeColor }: PosedModelProps) {
       }
     });
     console.log("[ExerciseModel] bone names:", boneNames);
+
+    // モデルの実サイズを計測して自動スケーリング（ターゲット高さ = 1.8 units）
+    const box = new THREE.Box3().setFromObject(scene);
+    const size = box.getSize(new THREE.Vector3());
+    console.log("[ExerciseModel] model size:", size.x.toFixed(3), size.y.toFixed(3), size.z.toFixed(3));
+    if (groupRef.current && size.y > 0) {
+      const targetHeight = 1.8;
+      const s = targetHeight / size.y;
+      groupRef.current.scale.setScalar(s);
+      // 足元を y=-1.0 に揃える
+      groupRef.current.position.y = -box.min.y * s - 1.0;
+    }
 
     // 座りベースポーズを適用
     Object.entries(SIT_POSE).forEach(([boneName, target]) => {
@@ -170,7 +183,11 @@ function PosedModel({ poseKey, typeColor }: PosedModelProps) {
     });
   });
 
-  return <primitive object={scene} scale={0.013} position={[0, -0.8, 0]} />;
+  return (
+    <group ref={groupRef}>
+      <primitive object={scene} />
+    </group>
+  );
 }
 
 // ────────────── 公開コンポーネント ──────────────
