@@ -19,49 +19,14 @@ export interface DiagnosisQuestion {
   options: { label: string; score: number }[]; // +positive=A側, -negative=B側
 }
 
-export interface Exercise {
-  name: string;
-  duration: number;
-  instruction: string;
-  tip: string;
-}
-
-export interface CareProgram {
-  title: string;
-  reason: string;
-  exercises: Exercise[];
-  afterMessage: string;
-}
-
-export interface UserData {
-  dinosaurCode: string;
-  streakDays: number;
-  lastCheckinDate: string; // YYYY-MM-DD
-  totalXP: number;
-  checkinHistory: CheckinRecord[];
-  maxStreak?: number;
-}
-
-export interface CheckinRecord {
-  date: string;
-  symptoms: string[];
-  intensity: number;
-  feedback: "great" | "good" | "neutral";
-}
-
-export interface PendingCheckin {
-  symptoms: string[];
-  intensity: number;
-  timeOfDay: "morning" | "noon" | "evening";
-  program: CareProgram;
-}
-
+export type PoseKey = "neck-side" | "neck-rotation" | "shoulder-open" | "spine-twist" | "forward-bend" | "overhead" | "idle";
 
 export interface Exercise {
   name: string;
   duration: number;
   instruction: string;
   tip: string;
+  poseKey?: PoseKey;
 }
 
 export interface CareProgram {

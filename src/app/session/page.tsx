@@ -160,7 +160,7 @@ export default function SessionPage() {
         </div>
 
         {/* 3D モデル */}
-        <ExerciseModel exerciseName={current.name} typeColor={typeColor} />
+        <ExerciseModel exerciseName={current.name} typeColor={typeColor} poseKey={current.poseKey} />
 
         {/* タイマー */}
         <CircularTimer timeLeft={timeLeft} duration={currentDuration} typeColor={typeColor} />

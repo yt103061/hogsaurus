@@ -217,10 +217,11 @@ function PosedModel({ poseKey, typeColor }: PosedModelProps) {
 interface ExerciseModelProps {
   exerciseName: string;
   typeColor: string;
+  poseKey?: string;
 }
 
-export function ExerciseModel({ exerciseName, typeColor }: ExerciseModelProps) {
-  const poseKey = getPoseKey(exerciseName);
+export function ExerciseModel({ exerciseName, typeColor, poseKey: propPoseKey }: ExerciseModelProps) {
+  const poseKey = propPoseKey && EXERCISE_POSES[propPoseKey] ? propPoseKey : getPoseKey(exerciseName);
   return (
     <div style={{ width: 220, height: 260, margin: "0 auto" }}>
       <Canvas
