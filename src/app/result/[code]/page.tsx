@@ -60,8 +60,11 @@ export default function ResultPage() {
   return (
     <main className="min-h-screen flex flex-col items-center justify-center px-4 py-16 bg-[#F7F7F7]">
       <div className="w-full max-w-md">
-        <p className="text-center text-xs font-extrabold tracking-widest text-[#AAA] mb-6 uppercase">
-          診断結果
+        <p className="text-center text-xs font-extrabold tracking-widest text-[#AAA] mb-2 uppercase">
+          あなたのパートナー恐竜
+        </p>
+        <p className="text-center text-sm font-bold text-[#777] mb-6">
+          あなたの不調パターンに最も合う恐竜が決まりました
         </p>
 
         {/* Dino Badge */}
@@ -78,7 +81,8 @@ export default function ResultPage() {
           >
             {dinosaur.code}
           </span>
-          <h1 className="text-3xl font-black mt-3 mb-1" style={{ color: tc }}>
+          <p className="text-xs font-bold text-[#AAA] mt-3 mb-0.5">あなたのパートナー</p>
+          <h1 className="text-3xl font-black mb-1" style={{ color: tc }}>
             {dinosaur.name}
           </h1>
           <p className="text-sm font-semibold text-[#777]">{dinosaur.species}</p>
@@ -110,7 +114,7 @@ export default function ResultPage() {
             {copied ? "✓ コピーしました！" : "Xでシェア（テキストをコピー）"}
           </button>
           <Link href="/checkin" className="btn-duo-outline text-center block">
-            今日のチェックインをする →
+            {dinosaur.name}と一緒にケアを始める →
           </Link>
           <Link
             href="/diagnosis"

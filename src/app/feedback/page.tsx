@@ -155,6 +155,7 @@ function CompletionScreen({ earnedXP, streakDays, typeColor, dinosaurName, nextF
       </div>
 
       <div className="mb-6" style={vis(2)}>
+        <p className="text-xs font-extrabold text-[#AAA] mb-1">{dinosaurName} が獲得</p>
         <span className="text-5xl font-black tabular-nums" style={{ color: typeColor }}>
           +{xpDisplay}
         </span>
@@ -168,6 +169,7 @@ function CompletionScreen({ earnedXP, streakDays, typeColor, dinosaurName, nextF
         >
           <span className="text-6xl animate-float inline-block">🦕</span>
         </div>
+        <p className="text-[10px] font-extrabold text-[#AAA] mb-0.5">あなたのパートナー</p>
         <p className="text-sm font-extrabold" style={{ color: typeColor }}>{dinosaurName}</p>
       </div>
 

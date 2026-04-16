@@ -94,9 +94,12 @@ export default function CheckinPage() {
           <p className="text-xs font-extrabold text-[#AAA] mt-2">STEP {step} / 3</p>
         </div>
 
-        <h1 className="text-2xl font-extrabold mb-6 text-[#1C1C1C]">
-          今日の<span style={{ color: typeColor }}>{dinosaurName}</span>はどう？
+        <h1 className="text-2xl font-extrabold mb-1 text-[#1C1C1C]">
+          今日の調子はどう？
         </h1>
+        <p className="text-sm font-semibold mb-6" style={{ color: typeColor }}>
+          あなたの状態を<span className="font-extrabold">{dinosaurName}</span>に伝えましょう
+        </p>
 
         {step === 1 && (
           <div>

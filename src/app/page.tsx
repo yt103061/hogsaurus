@@ -93,7 +93,7 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-[#F7F7F7] px-4 py-8">
       <div className="max-w-md mx-auto flex flex-col gap-4">
-        {/* Dino Badge Header */}
+        {/* Partner Header */}
         <div className="flex items-center gap-4 py-2">
           <div
             className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl flex-shrink-0"
@@ -102,13 +102,8 @@ export default function Home() {
             🦕
           </div>
           <div>
-            <span
-              className="text-[10px] font-extrabold tracking-wider px-2 py-0.5 rounded-lg text-white"
-              style={{ backgroundColor: tc }}
-            >
-              {dinosaur.code}
-            </span>
-            <p className="text-lg font-extrabold text-[#1C1C1C] mt-0.5">{dinosaur.name}</p>
+            <p className="text-[10px] font-extrabold text-[#AAA] mb-0.5">あなたのパートナー</p>
+            <p className="text-lg font-extrabold text-[#1C1C1C]">{dinosaur.name}</p>
             <p className="text-xs font-semibold text-[#777]">{dinosaur.species}</p>
           </div>
         </div>
