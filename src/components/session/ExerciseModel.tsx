@@ -1,11 +1,11 @@
 "use client";
 
-import { useRef, useEffect, useMemo } from "react";
+import { Suspense, useRef, useEffect, useMemo } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { useGLTF, Outlines } from "@react-three/drei";
+import { useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 
-// ────────────── 座りベースポーズ（修正済み） ──────────────
+// ────────────── 座りベースポーズ ──────────────
 const SIT_POSE: Record<string, { x?: number; y?: number; z?: number }> = {
   mixamorig_LeftUpLeg:  { x: -1.3 },
   mixamorig_RightUpLeg: { x: -1.3 },
@@ -90,7 +90,7 @@ function PosedModel({ poseKey, typeColor }: PosedModelProps) {
   const originalRotations = useRef<Record<string, THREE.Euler>>({});
   const timeRef = useRef(0);
 
-  // リングフィット風3段階トゥーングラデーション
+  // リングフィット風 3段階トゥーングラデーション
   const gradientMap = useMemo(() => {
     const tex = new THREE.DataTexture(
       new Uint8Array([64, 128, 255]),
@@ -125,14 +125,31 @@ function PosedModel({ poseKey, typeColor }: PosedModelProps) {
       if (target.z !== undefined) bone.rotation.z = (orig?.z ?? 0) + target.z;
     });
 
-    // リングフィット風トゥーンマテリアル
+    // マテリアル + アウトラインメッシュを追加
+    const outlineMat = new THREE.MeshBasicMaterial({
+      color: new THREE.Color("#1C1C1C"),
+      side: THREE.BackSide,
+    });
+
     scene.traverse((obj) => {
-      if (obj instanceof THREE.SkinnedMesh) {
-        obj.material = new THREE.MeshToonMaterial({
-          color: new THREE.Color(typeColor),
-          gradientMap,
-        });
-        obj.castShadow = true;
+      if (!(obj instanceof THREE.SkinnedMesh)) return;
+
+      // トゥーンマテリアル
+      obj.material = new THREE.MeshToonMaterial({
+        color: new THREE.Color(typeColor),
+        gradientMap,
+      });
+      obj.castShadow = true;
+
+      // BackSide SkinnedMesh でアウトライン（スケルトン共有）
+      if (!obj.getObjectByName("__outline__")) {
+        const outline = new THREE.SkinnedMesh(obj.geometry, outlineMat);
+        outline.name = "__outline__";
+        outline.skeleton = obj.skeleton;
+        outline.bindMatrix = obj.bindMatrix.clone();
+        outline.bindMatrixInverse = obj.bindMatrixInverse.clone();
+        outline.scale.setScalar(1.04);
+        obj.add(outline);
       }
     });
   }, [scene, typeColor, gradientMap]);
@@ -153,11 +170,7 @@ function PosedModel({ poseKey, typeColor }: PosedModelProps) {
     });
   });
 
-  return (
-    <primitive object={scene} scale={0.013} position={[0, -0.8, 0]}>
-      <Outlines thickness={0.03} color="#1C1C1C" />
-    </primitive>
-  );
+  return <primitive object={scene} scale={0.013} position={[0, -0.8, 0]} />;
 }
 
 // ────────────── 公開コンポーネント ──────────────
@@ -178,7 +191,10 @@ export function ExerciseModel({ exerciseName, typeColor }: ExerciseModelProps) {
         <ambientLight intensity={0.2} />
         <directionalLight position={[0, 3, 4]} intensity={2.5} />
         <directionalLight position={[0, -2, 2]} intensity={0.3} />
-        <PosedModel poseKey={poseKey} typeColor={typeColor} />
+        {/* useGLTF はサスペンドするため Suspense が必須 */}
+        <Suspense fallback={null}>
+          <PosedModel poseKey={poseKey} typeColor={typeColor} />
+        </Suspense>
       </Canvas>
     </div>
   );
