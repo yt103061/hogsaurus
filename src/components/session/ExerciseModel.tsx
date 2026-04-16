@@ -64,6 +64,24 @@ const EXERCISE_POSES: Record<string, {
   "idle": { bones: {}, duration: 2.5 },
 };
 
+// ────────────── ボーン名解決（複数命名規則に対応） ──────────────
+// Mixamo直接 "mixamorig:Neck" / 変換後 "mixamorig_Neck" / プレフィックスなし "Neck"
+function resolveBone(
+  bones: Record<string, THREE.Bone>,
+  mixamorigName: string
+): THREE.Bone | undefined {
+  if (bones[mixamorigName]) return bones[mixamorigName];
+  const base = mixamorigName.replace(/^mixamorig[_:]?/i, "");
+  if (bones[base]) return bones[base];
+  const colonKey = `mixamorig:${base}`;
+  if (bones[colonKey]) return bones[colonKey];
+  const baseLower = base.toLowerCase();
+  for (const [k, v] of Object.entries(bones)) {
+    if (k.replace(/^mixamorig[_:]?/i, "").toLowerCase() === baseLower) return v;
+  }
+  return undefined;
+}
+
 // ────────────── 種目名 → ポーズ ──────────────
 function getPoseKey(exerciseName: string): string {
   if (/首.*横|横.*倒|傾け|サイド/.test(exerciseName)) return "neck-side";
@@ -124,15 +142,17 @@ function PosedModel({ poseKey, typeColor }: PosedModelProps) {
       const targetHeight = 1.8;
       const s = targetHeight / size.y;
       groupRef.current.scale.setScalar(s);
-      // 足元を y=-1.0 に揃える
       groupRef.current.position.y = -box.min.y * s - 1.0;
     }
 
     // 座りベースポーズを適用
-    Object.entries(SIT_POSE).forEach(([boneName, target]) => {
-      const bone = bonesRef.current[boneName];
+    Object.entries(SIT_POSE).forEach(([mixamorigName, target]) => {
+      const bone = resolveBone(bonesRef.current, mixamorigName);
       if (!bone) return;
-      const orig = originalRotations.current[boneName];
+      const origKey = Object.keys(bonesRef.current).find(
+        (k) => bonesRef.current[k] === bone
+      ) ?? mixamorigName;
+      const orig = originalRotations.current[origKey];
       if (target.x !== undefined) bone.rotation.x = (orig?.x ?? 0) + target.x;
       if (target.y !== undefined) bone.rotation.y = (orig?.y ?? 0) + target.y;
       if (target.z !== undefined) bone.rotation.z = (orig?.z ?? 0) + target.z;
@@ -172,11 +192,15 @@ function PosedModel({ poseKey, typeColor }: PosedModelProps) {
     const pose = EXERCISE_POSES[poseKey] ?? EXERCISE_POSES["idle"];
     const t = Math.sin(timeRef.current * (Math.PI / pose.duration));
 
-    Object.entries(pose.bones).forEach(([boneName, target]) => {
-      const bone = bonesRef.current[boneName];
-      const orig = originalRotations.current[boneName];
-      if (!bone || !orig) return;
-      const sitOffset = SIT_POSE[boneName] ?? {};
+    Object.entries(pose.bones).forEach(([mixamorigName, target]) => {
+      const bone = resolveBone(bonesRef.current, mixamorigName);
+      if (!bone) return;
+      const origKey = Object.keys(bonesRef.current).find(
+        (k) => bonesRef.current[k] === bone
+      ) ?? mixamorigName;
+      const orig = originalRotations.current[origKey];
+      if (!orig) return;
+      const sitOffset = SIT_POSE[mixamorigName] ?? {};
       bone.rotation.x = orig.x + (sitOffset.x ?? 0) + (target.x ?? 0) * t;
       bone.rotation.y = orig.y + (sitOffset.y ?? 0) + (target.y ?? 0) * t;
       bone.rotation.z = orig.z + (sitOffset.z ?? 0) + (target.z ?? 0) * t;
