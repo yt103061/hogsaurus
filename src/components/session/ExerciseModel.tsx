@@ -1,18 +1,18 @@
 "use client";
 
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useMemo } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { useGLTF, Outlines } from "@react-three/drei";
 import * as THREE from "three";
 
-// ────────────── 座りベースポーズ ──────────────
+// ────────────── 座りベースポーズ（修正済み） ──────────────
 const SIT_POSE: Record<string, { x?: number; y?: number; z?: number }> = {
-  mixamorig_LeftUpLeg: { x: 1.4 },
-  mixamorig_RightUpLeg: { x: 1.4 },
-  mixamorig_LeftLeg: { x: -1.4 },
-  mixamorig_RightLeg: { x: -1.4 },
-  mixamorig_LeftFoot: { x: -0.3 },
-  mixamorig_RightFoot: { x: -0.3 },
+  mixamorig_LeftUpLeg:  { x: -1.3 },
+  mixamorig_RightUpLeg: { x: -1.3 },
+  mixamorig_LeftLeg:    { x: 1.1 },
+  mixamorig_RightLeg:   { x: 1.1 },
+  mixamorig_LeftFoot:   { x: 0.3 },
+  mixamorig_RightFoot:  { x: 0.3 },
 };
 
 // ────────────── ポーズ定義 ──────────────
@@ -85,49 +85,67 @@ interface PosedModelProps {
 }
 
 function PosedModel({ poseKey, typeColor }: PosedModelProps) {
-  const { scene } = useGLTF("/models/ybot.glb");
+  const { scene } = useGLTF("/models/character.glb");
   const bonesRef = useRef<Record<string, THREE.Bone>>({});
   const originalRotations = useRef<Record<string, THREE.Euler>>({});
   const timeRef = useRef(0);
 
+  // リングフィット風3段階トゥーングラデーション
+  const gradientMap = useMemo(() => {
+    const tex = new THREE.DataTexture(
+      new Uint8Array([64, 128, 255]),
+      3, 1,
+      THREE.RedFormat
+    );
+    tex.magFilter = THREE.NearestFilter;
+    tex.needsUpdate = true;
+    return tex;
+  }, []);
+
   useEffect(() => {
-    // ボーン収集
+    // ボーン収集＋デバッグログ
+    const boneNames: string[] = [];
     scene.traverse((obj) => {
       if (obj.type === "Bone") {
         const bone = obj as THREE.Bone;
         bonesRef.current[bone.name] = bone;
         originalRotations.current[bone.name] = bone.rotation.clone();
+        boneNames.push(bone.name);
       }
     });
+    console.log("[ExerciseModel] bone names:", boneNames);
+
     // 座りベースポーズを適用
     Object.entries(SIT_POSE).forEach(([boneName, target]) => {
       const bone = bonesRef.current[boneName];
       if (!bone) return;
-      if (target.x !== undefined) bone.rotation.x = (originalRotations.current[boneName]?.x ?? 0) + target.x;
-      if (target.y !== undefined) bone.rotation.y = (originalRotations.current[boneName]?.y ?? 0) + target.y;
-      if (target.z !== undefined) bone.rotation.z = (originalRotations.current[boneName]?.z ?? 0) + target.z;
+      const orig = originalRotations.current[boneName];
+      if (target.x !== undefined) bone.rotation.x = (orig?.x ?? 0) + target.x;
+      if (target.y !== undefined) bone.rotation.y = (orig?.y ?? 0) + target.y;
+      if (target.z !== undefined) bone.rotation.z = (orig?.z ?? 0) + target.z;
     });
-    // マテリアルをtypeColorで上書き（フラット）
+
+    // リングフィット風トゥーンマテリアル
     scene.traverse((obj) => {
       if (obj instanceof THREE.SkinnedMesh) {
-        obj.material = new THREE.MeshBasicMaterial({
+        obj.material = new THREE.MeshToonMaterial({
           color: new THREE.Color(typeColor),
+          gradientMap,
         });
+        obj.castShadow = true;
       }
     });
-  }, [scene, typeColor]);
+  }, [scene, typeColor, gradientMap]);
 
   useFrame((_, delta) => {
     timeRef.current += delta;
     const pose = EXERCISE_POSES[poseKey] ?? EXERCISE_POSES["idle"];
-    // sin 波で 0 → 1 → 0 ループ
     const t = Math.sin(timeRef.current * (Math.PI / pose.duration));
 
     Object.entries(pose.bones).forEach(([boneName, target]) => {
       const bone = bonesRef.current[boneName];
       const orig = originalRotations.current[boneName];
       if (!bone || !orig) return;
-      // SIT_POSE のオフセットも加味する
       const sitOffset = SIT_POSE[boneName] ?? {};
       bone.rotation.x = orig.x + (sitOffset.x ?? 0) + (target.x ?? 0) * t;
       bone.rotation.y = orig.y + (sitOffset.y ?? 0) + (target.y ?? 0) * t;
@@ -151,16 +169,19 @@ interface ExerciseModelProps {
 export function ExerciseModel({ exerciseName, typeColor }: ExerciseModelProps) {
   const poseKey = getPoseKey(exerciseName);
   return (
-    <div style={{ width: 200, height: 240, margin: "0 auto" }}>
+    <div style={{ width: 220, height: 260, margin: "0 auto" }}>
       <Canvas
-        camera={{ position: [1.5, 1.2, 2.5], fov: 50 }}
+        camera={{ position: [1.2, 1.5, 2.8], fov: 45 }}
         style={{ background: "transparent" }}
         gl={{ alpha: true }}
       >
+        <ambientLight intensity={0.2} />
+        <directionalLight position={[0, 3, 4]} intensity={2.5} />
+        <directionalLight position={[0, -2, 2]} intensity={0.3} />
         <PosedModel poseKey={poseKey} typeColor={typeColor} />
       </Canvas>
     </div>
   );
 }
 
-useGLTF.preload("/models/ybot.glb");
+useGLTF.preload("/models/character.glb");

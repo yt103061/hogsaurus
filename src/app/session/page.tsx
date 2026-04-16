@@ -12,7 +12,7 @@ import { CircularTimer } from "@/components/session/CircularTimer";
 // Three.js は SSR 不可のため dynamic import
 const ExerciseModel = dynamic(
   () => import("@/components/session/ExerciseModel").then((m) => m.ExerciseModel),
-  { ssr: false, loading: () => <div style={{ width: 180, height: 220, margin: "0 auto" }} /> }
+  { ssr: false, loading: () => <div style={{ width: 220, height: 260, margin: "0 auto" }} /> }
 );
 
 function getCoachingMessage(timeLeft: number, duration: number): string {
