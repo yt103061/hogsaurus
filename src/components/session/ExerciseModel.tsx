@@ -2,8 +2,18 @@
 
 import { useRef, useEffect } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { useGLTF } from "@react-three/drei";
+import { useGLTF, Outlines } from "@react-three/drei";
 import * as THREE from "three";
+
+// ────────────── 座りベースポーズ ──────────────
+const SIT_POSE: Record<string, { x?: number; y?: number; z?: number }> = {
+  mixamorig_LeftUpLeg: { x: 1.4 },
+  mixamorig_RightUpLeg: { x: 1.4 },
+  mixamorig_LeftLeg: { x: -1.4 },
+  mixamorig_RightLeg: { x: -1.4 },
+  mixamorig_LeftFoot: { x: -0.3 },
+  mixamorig_RightFoot: { x: -0.3 },
+};
 
 // ────────────── ポーズ定義 ──────────────
 const EXERCISE_POSES: Record<string, {
@@ -12,11 +22,11 @@ const EXERCISE_POSES: Record<string, {
 }> = {
   "neck-side": {
     bones: { mixamorig_Neck: { z: 0.35 }, mixamorig_Head: { z: 0.15 } },
-    duration: 3,
+    duration: 2,
   },
   "neck-rotation": {
     bones: { mixamorig_Neck: { y: 0.5 } },
-    duration: 4,
+    duration: 2.5,
   },
   "shoulder-open": {
     bones: {
@@ -24,7 +34,7 @@ const EXERCISE_POSES: Record<string, {
       mixamorig_RightArm: { z: 0.6, x: -0.2 },
       mixamorig_Spine2: { x: -0.15 },
     },
-    duration: 4,
+    duration: 2.5,
   },
   "spine-twist": {
     bones: {
@@ -32,7 +42,7 @@ const EXERCISE_POSES: Record<string, {
       mixamorig_Spine1: { y: 0.3 },
       mixamorig_Spine2: { y: 0.2 },
     },
-    duration: 4,
+    duration: 2.5,
   },
   "forward-bend": {
     bones: {
@@ -41,7 +51,7 @@ const EXERCISE_POSES: Record<string, {
       mixamorig_Spine2: { x: 0.2 },
       mixamorig_Neck: { x: 0.1 },
     },
-    duration: 4,
+    duration: 2.5,
   },
   "overhead": {
     bones: {
@@ -49,9 +59,9 @@ const EXERCISE_POSES: Record<string, {
       mixamorig_RightArm: { z: 1.4 },
       mixamorig_Spine2: { x: -0.1 },
     },
-    duration: 4,
+    duration: 2.5,
   },
-  "idle": { bones: {}, duration: 3 },
+  "idle": { bones: {}, duration: 2.5 },
 };
 
 // ────────────── 種目名 → ポーズ ──────────────
@@ -89,10 +99,18 @@ function PosedModel({ poseKey, typeColor }: PosedModelProps) {
         originalRotations.current[bone.name] = bone.rotation.clone();
       }
     });
-    // マテリアルをtypeColorで上書き
+    // 座りベースポーズを適用
+    Object.entries(SIT_POSE).forEach(([boneName, target]) => {
+      const bone = bonesRef.current[boneName];
+      if (!bone) return;
+      if (target.x !== undefined) bone.rotation.x = (originalRotations.current[boneName]?.x ?? 0) + target.x;
+      if (target.y !== undefined) bone.rotation.y = (originalRotations.current[boneName]?.y ?? 0) + target.y;
+      if (target.z !== undefined) bone.rotation.z = (originalRotations.current[boneName]?.z ?? 0) + target.z;
+    });
+    // マテリアルをtypeColorで上書き（フラット）
     scene.traverse((obj) => {
       if (obj instanceof THREE.SkinnedMesh) {
-        obj.material = new THREE.MeshToonMaterial({
+        obj.material = new THREE.MeshBasicMaterial({
           color: new THREE.Color(typeColor),
         });
       }
@@ -109,13 +127,19 @@ function PosedModel({ poseKey, typeColor }: PosedModelProps) {
       const bone = bonesRef.current[boneName];
       const orig = originalRotations.current[boneName];
       if (!bone || !orig) return;
-      bone.rotation.x = orig.x + (target.x ?? 0) * t;
-      bone.rotation.y = orig.y + (target.y ?? 0) * t;
-      bone.rotation.z = orig.z + (target.z ?? 0) * t;
+      // SIT_POSE のオフセットも加味する
+      const sitOffset = SIT_POSE[boneName] ?? {};
+      bone.rotation.x = orig.x + (sitOffset.x ?? 0) + (target.x ?? 0) * t;
+      bone.rotation.y = orig.y + (sitOffset.y ?? 0) + (target.y ?? 0) * t;
+      bone.rotation.z = orig.z + (sitOffset.z ?? 0) + (target.z ?? 0) * t;
     });
   });
 
-  return <primitive object={scene} scale={0.015} position={[0, -1.2, 0]} />;
+  return (
+    <primitive object={scene} scale={0.013} position={[0, -0.8, 0]}>
+      <Outlines thickness={0.03} color="#1C1C1C" />
+    </primitive>
+  );
 }
 
 // ────────────── 公開コンポーネント ──────────────
@@ -127,14 +151,12 @@ interface ExerciseModelProps {
 export function ExerciseModel({ exerciseName, typeColor }: ExerciseModelProps) {
   const poseKey = getPoseKey(exerciseName);
   return (
-    <div style={{ width: 180, height: 220, margin: "0 auto" }}>
+    <div style={{ width: 200, height: 240, margin: "0 auto" }}>
       <Canvas
-        camera={{ position: [0, 1, 3], fov: 50 }}
+        camera={{ position: [1.5, 1.2, 2.5], fov: 50 }}
         style={{ background: "transparent" }}
         gl={{ alpha: true }}
       >
-        <ambientLight intensity={0.8} />
-        <directionalLight position={[2, 4, 2]} intensity={1} />
         <PosedModel poseKey={poseKey} typeColor={typeColor} />
       </Canvas>
     </div>
