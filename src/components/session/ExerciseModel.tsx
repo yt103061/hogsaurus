@@ -5,15 +5,9 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 
-// ────────────── 座りベースポーズ ──────────────
-const SIT_POSE: Record<string, { x?: number; y?: number; z?: number }> = {
-  mixamorig_LeftUpLeg:  { x: -1.3 },
-  mixamorig_RightUpLeg: { x: -1.3 },
-  mixamorig_LeftLeg:    { x: 1.1 },
-  mixamorig_RightLeg:   { x: 1.1 },
-  mixamorig_LeftFoot:   { x: 0.3 },
-  mixamorig_RightFoot:  { x: 0.3 },
-};
+// ────────────── 座りベースポーズ（ボーン名確認後に再設定） ──────────────
+// 現在は無効化：モデルのボーン名が不明なため空にしてある
+const SIT_POSE: Record<string, { x?: number; y?: number; z?: number }> = {};
 
 // ────────────── ポーズ定義 ──────────────
 const EXERCISE_POSES: Record<string, {
@@ -132,7 +126,16 @@ function PosedModel({ poseKey, typeColor }: PosedModelProps) {
         boneNames.push(bone.name);
       }
     });
-    console.log("[ExerciseModel] bone names:", boneNames);
+    // ボーン名を確認しやすいようにアルファベット順でログ出力
+    boneNames.sort();
+    console.log("[ExerciseModel] ALL bones (" + boneNames.length + "):\n" + boneNames.join("\n"));
+
+    // エクササイズポーズのボーンが実際に見つかるか確認
+    const testBones = ["mixamorig_Neck", "mixamorig_Head", "mixamorig_Spine", "mixamorig_LeftArm", "mixamorig_RightArm"];
+    testBones.forEach((name) => {
+      const found = resolveBone(bonesRef.current, name);
+      console.log(`[ExerciseModel] ${name} → ${found ? found.name : "NOT FOUND"}`);
+    });
 
     // モデルの実サイズを計測して自動スケーリング（ターゲット高さ = 1.8 units）
     const box = new THREE.Box3().setFromObject(scene);
